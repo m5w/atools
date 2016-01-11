@@ -4,7 +4,6 @@ project(cdec)
 add_definitions(-DKENLM_MAX_ORDER=6 -DHAVE_CONFIG_H)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_CXX_FLAGS "-Wall -std=c++11 -O3 -g")
-set(METEOR_JAR "" CACHE FILEPATH "Path to meteor.jar")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -15,14 +14,7 @@ if(DEFINED ENV{BOOST_ROOT})
 endif()
 set(Boost_REALPATH ON)
 
-find_package(Boost COMPONENTS
-                   regex
-                   filesystem
-                   serialization
-                   program_options
-                   unit_test_framework
-                   system
-                   thread REQUIRED)
+find_package(Boost COMPONENTS program_options REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIR})
 
@@ -31,9 +23,6 @@ find_package(ZLIB REQUIRED)
 if(ZLIB_FOUND)
   set(HAVE_ZLIB 1)
 endif(ZLIB_FOUND)
-
-# generate config.h
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 add_subdirectory(utils)
 
