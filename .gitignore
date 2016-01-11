@@ -242,3 +242,5 @@ utils/stringlib_test
 word-aligner/binderiv
 word-aligner/fast_align
 test-driver
+CPackConfig.cmake
+CPackSourceConfig.cmake
