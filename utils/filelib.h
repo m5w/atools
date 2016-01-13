@@ -5,7 +5,7 @@
 #include <string>
 #include <iostream>
 #include <cstdlib>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <stdexcept>
 #include "gzstream.h"
 #include "null_deleter.h"
@@ -21,7 +21,7 @@ void MkDirP(const std::string& dir_name);
 template <class Stream>
 struct BaseFile {
   typedef Stream S;
-  typedef boost::shared_ptr<Stream> PS;
+  typedef std::shared_ptr<Stream> PS;
   void Reset() {
     ps_.reset();
   }

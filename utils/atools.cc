@@ -5,7 +5,7 @@
 #include <queue>
 #include <map>
 #include <boost/program_options.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "filelib.h"
 #include "alignment_io.h"
@@ -263,13 +263,13 @@ struct GDFACommand : public DiagCommand {
   }
 };
 
-map<string, boost::shared_ptr<Command> > commands;
+map<string, shared_ptr<Command> > commands;
 
 void InitCommandLine(unsigned argc, char** argv, po::variables_map* conf) {
   po::options_description opts("Configuration options");
   ostringstream os;
   os << "Operation to perform:";
-  for (map<string, boost::shared_ptr<Command> >::iterator it = commands.begin();
+  for (map<string, shared_ptr<Command> >::iterator it = commands.begin();
        it != commands.end(); ++it) {
     os << ' ' << it->first;
   }
@@ -329,8 +329,8 @@ int main(int argc, char **argv) {
   po::variables_map conf;
   InitCommandLine(argc, argv, &conf);
   Command& cmd = *commands[conf["command"].as<string>()];
-  boost::shared_ptr<ReadFile> rf1(new ReadFile(conf["input_1"].as<string>()));
-  boost::shared_ptr<ReadFile> rf2;
+  shared_ptr<ReadFile> rf1(new ReadFile(conf["input_1"].as<string>()));
+  shared_ptr<ReadFile> rf2;
   if (cmd.RequiresTwoOperands())
     rf2.reset(new ReadFile(conf["input_2"].as<string>()));
   istream* in1 = rf1->stream();
@@ -348,10 +348,10 @@ int main(int argc, char **argv) {
       }
     }
     if (line1.empty() && !*in1) break;
-    boost::shared_ptr<Array2D<bool> > out(new Array2D<bool>);
-    boost::shared_ptr<Array2D<bool> > a1 = AlignmentIO::ReadPharaohAlignmentGrid(line1);
+    shared_ptr<Array2D<bool> > out(new Array2D<bool>);
+    shared_ptr<Array2D<bool> > a1 = AlignmentIO::ReadPharaohAlignmentGrid(line1);
     if (in2) {
-      boost::shared_ptr<Array2D<bool> > a2 = AlignmentIO::ReadPharaohAlignmentGrid(line2);
+      shared_ptr<Array2D<bool> > a2 = AlignmentIO::ReadPharaohAlignmentGrid(line2);
       cmd.Apply(*a1, *a2, out.get());
     } else {
       Array2D<bool> dummy;

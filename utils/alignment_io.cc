@@ -1,10 +1,10 @@
-#include "utils/alignment_io.h"
+#include "alignment_io.h"
 
 using namespace std;
 
 static bool is_digit(char x) { return x >= '0' && x <= '9'; }
 
-boost::shared_ptr<Array2D<bool> > AlignmentIO::ReadPharaohAlignmentGrid(const string& al) {
+shared_ptr<Array2D<bool> > AlignmentIO::ReadPharaohAlignmentGrid(const string& al) {
   int max_x = 0;
   int max_y = 0;
   unsigned i = 0;
@@ -35,7 +35,7 @@ boost::shared_ptr<Array2D<bool> > AlignmentIO::ReadPharaohAlignmentGrid(const st
     while(i < al.size() && al[i] == ' ') { ++i; }
   }
 
-  boost::shared_ptr<Array2D<bool> > grid(new Array2D<bool>(max_x + 1, max_y + 1));
+  shared_ptr<Array2D<bool> > grid(new Array2D<bool>(max_x + 1, max_y + 1));
   i = 0;
   if (pos != string::npos) { i = pos + 5; }
   while (i < al.size()) {

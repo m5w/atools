@@ -34,6 +34,7 @@ training/utils/grammar_convert
 *swp
 *~
 .*
+!.ycm_extra_conf.py
 ./cdec/
 Makefile
 Makefile.in

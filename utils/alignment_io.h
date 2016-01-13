@@ -3,13 +3,13 @@
 
 #include <string>
 #include <iostream>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include "array2d.h"
 
 struct AlignmentIO {
   enum AlignmentType { kNONE = 0, kTRANSLATION = 1, kTRANSLITERATION = 2 };
 
-  static boost::shared_ptr<Array2D<bool> > ReadPharaohAlignmentGrid(const std::string& al);
+  static std::shared_ptr<Array2D<bool> > ReadPharaohAlignmentGrid(const std::string& al);
   static void SerializePharaohFormat(const Array2D<bool>& alignment, std::ostream* out);
   static void SerializeTypedAlignment(const Array2D<AlignmentType>& alignment, std::ostream* out);
 };
