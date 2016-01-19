@@ -5,10 +5,13 @@
 #include <queue>
 #include <map>
 #include <boost/program_options.hpp>
+#include <getopt.h>
+#include <unistd.h>
 #include <memory>
 
 #include "filelib.h"
 #include "alignment_io.h"
+#include "optional.h"
 
 namespace po = boost::program_options;
 using namespace std;
@@ -265,47 +268,156 @@ struct GDFACommand : public DiagCommand {
 
 map<string, shared_ptr<Command> > commands;
 
-void InitCommandLine(unsigned argc, char** argv, po::variables_map* conf) {
-  po::options_description opts("Configuration options");
-  ostringstream os;
-  os << "Operation to perform:";
-  for (map<string, shared_ptr<Command> >::iterator it = commands.begin();
-       it != commands.end(); ++it) {
-    os << ' ' << it->first;
+class Help {
+public:
+  static const Help &help();
+  void operator()() const;
+private:
+  Help();
+  std::ostringstream dcmdline_options;
+};
+
+const Help &Help::help() { static Help TheHelp; return TheHelp; }
+
+void Help::operator()() const {
+  std::cout << dcmdline_options.str();
+}
+
+Help::Help() : dcmdline_options() {
+  dcmdline_options <<
+"\n"
+"Configuration options:\n"
+"  -i [ --input_1 ] arg            [REQUIRED] Alignment 1 file, - for STDIN\n"
+"  -j [ --input_2 ] arg            Alignment 2 file, - for STDIN\n"
+"  -c [ --command ] arg (=convert) Operation to perform:";
+
+  for (auto Command_ : commands)
+    dcmdline_options << ' ' << Command_.first;
+}
+
+struct option longopts[] = {
+  {"command", required_argument, 0, 'c'},
+  {"help", no_argument, 0, 'h'},
+  {"input_1", required_argument, 0, 'i'},
+  {"input_2", required_argument, 0, 'j'}
+};
+
+int indexptr;
+
+void set_indexptr(const int val) {
+  if (val == longopts[indexptr].val)
+    return;
+
+  for (std::size_t longopts_Index = 0;; ++longopts_Index) {
+    const int val_ = longopts[longopts_Index].val;
+
+    if (val_ == 0)
+      break;
+
+    if (val_ == val) {
+      indexptr = longopts_Index;
+      return;
+    }
   }
-  string cstr = os.str();
-  opts.add_options()
-        ("input_1,i", po::value<string>(), "[REQUIRED] Alignment 1 file, - for STDIN")
-        ("input_2,j", po::value<string>(), "Alignment 2 file, - for STDIN")
-	("command,c", po::value<string>()->default_value("convert"), cstr.c_str())
-        ("help,h", "Print this help message and exit");
-  po::options_description clo("Command line options");
-  po::options_description dcmdline_options;
-  dcmdline_options.add(opts);
+}
 
-  po::store(parse_command_line(argc, argv, dcmdline_options), *conf);
-  po::notify(*conf);
+std::string option_string(const struct option option_) {
+  std::ostringstream option_string_;
+  option_string_ << '-' << static_cast<char>(option_.val) << ", --"
+                 << option_.name;
+  return option_string_.str();
+}
 
-  if (conf->count("help") || conf->count("input_1") == 0 || conf->count("command") == 0) {
-    cerr << dcmdline_options << endl;
+std::string option_string(const int indexptr_) {
+  return option_string(longopts[indexptr_]);
+}
+
+std::string option_string() { return option_string(indexptr);
+}
+
+class UnexpectedOption : public std::exception {
+public:
+  UnexpectedOption(const std::ostringstream &what_);
+  ~UnexpectedOption() throw();
+  const char *what() const throw();
+private:
+  const std::string what_;
+};
+
+UnexpectedOption::UnexpectedOption(const std::ostringstream &what_)
+    : what_(what_.str()) {}
+
+UnexpectedOption::~UnexpectedOption() throw() {}
+
+const char *UnexpectedOption::what() const throw() { return what_.c_str(); }
+
+void optionCase(Apertium::Optional<std::string> &optarg_) {
+  if (optarg_) {
+    std::ostringstream what_;
+    what_ << "unexpected option " << option_string() << " following option "
+          << option_string();
+    throw UnexpectedOption(what_);
+  }
+
+  optarg_ = std::string(optarg);
+}
+
+Apertium::Optional<std::string> command, input_1, input_2;
+
+class getopt_long_Exception {};
+
+void InitCommandLine(unsigned argc, char** argv) {
+
+  while (true) {
+    int getopt_long_ = getopt_long(argc, argv, "c:hi:j:", longopts, &indexptr);
+
+    if (getopt_long_ == -1)
+      break;
+
+    set_indexptr(getopt_long_);
+
+    switch (getopt_long_) {
+    case 'c':
+      optionCase(command);
+      break;
+    case 'h':
+      Help::help()();
+      exit(0);
+    case 'i':
+      optionCase(input_1);
+      break;
+    case 'j':
+      optionCase(input_2);
+      break;
+    default:
+      Help::help()();
+      throw getopt_long_Exception();
+    }
+  }
+
+  if (!command)
+    command = std::string("convert");
+
+  if (!input_1) {
+    Help::help()();
     exit(1);
   }
-  const string cmd = (*conf)["command"].as<string>();
-  if (commands.count(cmd) == 0) {
-    cerr << "Don't understand command: " << cmd << endl;
+
+  if (commands.count(*command) == 0) {
+    cerr << "Don't understand command: " << *command << endl;
     exit(1);
   }
-  if (commands[cmd]->RequiresTwoOperands()) {
-    if (conf->count("input_2") == 0) {
-      cerr << "Command '" << cmd << "' requires two alignment files\n";
+  if (commands[*command]->RequiresTwoOperands()) {
+    if (!input_2) {
+      cerr << "Command '" << *command << "' requires two alignment files\n";
       exit(1);
     }
-    if ((*conf)["input_1"].as<string>() == "-" && (*conf)["input_2"].as<string>() == "-") {
+    if (*input_1 == "-" && *input_2 == "-") {
       cerr << "Both inputs STDIN, reading PAIRS of lines\n";
     }
   } else {
-    if (conf->count("input_2") != 0) {
-      cerr << "Command '" << cmd << "' requires only one alignment file\n";
+    if (input_2) {
+      cerr << "Command '" << *command << "' requires only one alignment file\n";
       exit(1);
     }
   }
@@ -326,13 +438,12 @@ int main(int argc, char **argv) {
   AddCommand<GDFCommand>();
   AddCommand<GDFACommand>();
   AddCommand<FMeasureCommand>();
-  po::variables_map conf;
-  InitCommandLine(argc, argv, &conf);
-  Command& cmd = *commands[conf["command"].as<string>()];
-  shared_ptr<ReadFile> rf1(new ReadFile(conf["input_1"].as<string>()));
+  InitCommandLine(argc, argv);
+  Command& cmd = *commands[*command];
+  shared_ptr<ReadFile> rf1(new ReadFile(*input_1));
   shared_ptr<ReadFile> rf2;
   if (cmd.RequiresTwoOperands())
-    rf2.reset(new ReadFile(conf["input_2"].as<string>()));
+    rf2.reset(new ReadFile(*input_2));
   istream* in1 = rf1->stream();
   istream* in2 = NULL;
   if (rf2) in2 = rf2->stream();
