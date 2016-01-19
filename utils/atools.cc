@@ -1,19 +1,18 @@
-#include <iostream>
-#include <sstream>
-#include <vector>
-
-#include <queue>
-#include <map>
-#include <boost/program_options.hpp>
 #include <getopt.h>
-#include <unistd.h>
+#include <exception>
+#include <iostream>
+#include <map>
 #include <memory>
+#include <queue>
+#include <set>
+#include <sstream>
+#include <unistd.h>
+#include <vector>
 
 #include "filelib.h"
 #include "alignment_io.h"
 #include "optional.h"
 
-namespace po = boost::program_options;
 using namespace std;
 
 struct Command {

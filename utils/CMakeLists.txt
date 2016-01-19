@@ -7,7 +7,7 @@ endif()
 
 set(atools_SRCS atools.cc)
 add_executable(atools ${atools_SRCS})
-target_link_libraries(atools utils ${Boost_LIBRARIES} ${ZLIB_LIBRARIES})
+target_link_libraries(atools utils ${ZLIB_LIBRARIES})
 
 set(utils_STAT_SRCS
     alignment_io.h
