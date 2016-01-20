@@ -19,12 +19,14 @@
 #include <string>
 
 namespace Apertium {
-ExceptionType::ExceptionType(const char *const what_) : what_(what_) {}
+ExceptionType::ExceptionType(const char *const what_)
+    : std::exception(), what_(what_) {}
 
-ExceptionType::ExceptionType(const std::string &what_) : what_(what_) {}
+ExceptionType::ExceptionType(const std::string &what_)
+    : std::exception(), what_(what_) {}
 
 ExceptionType::ExceptionType(const std::stringstream &what_)
-    : what_(what_.str()) {}
+    : std::exception(), what_(what_.str()) {}
 
 ExceptionType::~ExceptionType() throw() {}
 

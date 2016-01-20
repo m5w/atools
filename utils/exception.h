@@ -32,60 +32,12 @@ namespace Exception {
     ~EXCEPTION_TYPE() throw() {}                                               \
   };
 
-namespace Analysis {
-EXCEPTION(TheMorphemes_empty)
-}
-
-namespace apertium_tagger {
-EXCEPTION(deserialise)
-EXCEPTION(ERANGE_)
-EXCEPTION(fclose)
-EXCEPTION(fopen)
-EXCEPTION(ifstream_fail)
-EXCEPTION(ofstream_fail)
-EXCEPTION(optarg_eq_NULL)
-EXCEPTION(str_end_not_eq_NULL)
-EXCEPTION(UnexpectedFileArgumentCount)
-EXCEPTION(UnexpectedFlagOption)
-EXCEPTION(UnexpectedFunctionTypeOption)
-EXCEPTION(UnexpectedFunctionTypeTypeOption)
-EXCEPTION(UnexpectedIterationsArgument)
-EXCEPTION(UnexpectedUnigramModelArgument)
-EXCEPTION(wifstream_fail)
-EXCEPTION(wofstream_fail)
-}
-
-namespace Deserialiser {
-EXCEPTION(size_t_)
-EXCEPTION(not_Stream_good)
-EXCEPTION(wchar_t_)
-}
-
-namespace LexicalUnit {
-EXCEPTION(TheAnalyses_empty)
-}
-
-namespace Morpheme {
-EXCEPTION(TheLemma_empty)
-EXCEPTION(TheTags_empty)
+namespace atools {
+EXCEPTION(UnexpectedOption)
 }
 
 namespace Optional {
 EXCEPTION(TheOptionalTypePointer_null)
-}
-
-namespace Serialiser {
-EXCEPTION(not_Stream_good)
-EXCEPTION(size_t_)
-EXCEPTION(wchar_t_)
-}
-
-namespace Tag {
-EXCEPTION(TheTags_empty)
-}
-
-namespace wchar_t_ExceptionType {
-EXCEPTION(EILSEQ_)
 }
 
 #undef EXCEPTION

@@ -12,15 +12,14 @@ target_link_libraries(atools utils ${ZLIB_LIBRARIES})
 set(utils_STAT_SRCS
     alignment_io.h
     array2d.h
-    basic_exception_type.h
     exception.h
     exception_type.h
     filelib.h
+    getopt_long_exception.h
     gzstream.h
     null_deleter.h
     optional.h
     alignment_io.cc
-    basic_exception_type.cc
     exception_type.cc
     filelib.cc
     gzstream.cc)

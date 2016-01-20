@@ -13,17 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, see <http://www.gnu.org/licenses/>.
 
-#ifndef BASIC_EXCEPTION_TYPE_H
-#define BASIC_EXCEPTION_TYPE_H
-
-#include <exception>
+#ifndef GETOPT_LONG_EXCEPTION_H
+#define GETOPT_LONG_EXCEPTION_H
 
 namespace Apertium {
-class basic_ExceptionType : public std::exception {
-public:
-  virtual ~basic_ExceptionType() throw() = 0;
-  virtual const char *what() const throw() = 0;
-};
+class getopt_long_Exception {};
 }
 
-#endif // BASIC_EXCEPTION_TYPE_H
+#endif // GETOPT_LONG_EXCEPTION_H

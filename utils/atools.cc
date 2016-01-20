@@ -9,8 +9,10 @@
 #include <unistd.h>
 #include <vector>
 
-#include "filelib.h"
 #include "alignment_io.h"
+#include "exception.h"
+#include "filelib.h"
+#include "getopt_long_exception.h"
 #include "optional.h"
 
 using namespace std;
@@ -334,28 +336,12 @@ std::string option_string(const int indexptr_) {
 std::string option_string() { return option_string(indexptr);
 }
 
-class UnexpectedOption : public std::exception {
-public:
-  UnexpectedOption(const std::ostringstream &what_);
-  ~UnexpectedOption() throw();
-  const char *what() const throw();
-private:
-  const std::string what_;
-};
-
-UnexpectedOption::UnexpectedOption(const std::ostringstream &what_)
-    : what_(what_.str()) {}
-
-UnexpectedOption::~UnexpectedOption() throw() {}
-
-const char *UnexpectedOption::what() const throw() { return what_.c_str(); }
-
 void optionCase(Apertium::Optional<std::string> &optarg_) {
   if (optarg_) {
-    std::ostringstream what_;
+    std::stringstream what_;
     what_ << "unexpected option " << option_string() << " following option "
           << option_string();
-    throw UnexpectedOption(what_);
+    throw Apertium::Exception::atools::UnexpectedOption(what_);
   }
 
   optarg_ = std::string(optarg);
@@ -363,10 +349,7 @@ void optionCase(Apertium::Optional<std::string> &optarg_) {
 
 Apertium::Optional<std::string> command, input_1, input_2;
 
-class getopt_long_Exception {};
-
 void InitCommandLine(unsigned argc, char** argv) {
-
   while (true) {
     int getopt_long_ = getopt_long(argc, argv, "c:hi:j:", longopts, &indexptr);
 
@@ -390,7 +373,7 @@ void InitCommandLine(unsigned argc, char** argv) {
       break;
     default:
       Help::help()();
-      throw getopt_long_Exception();
+      throw Apertium::getopt_long_Exception();
     }
   }
 
