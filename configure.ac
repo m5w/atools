@@ -1,0 +1,10 @@
+AC_INIT([cdec], [2015.04.26])
+AM_INIT_AUTOMAKE([foreign])
+AC_PROG_CXX
+AM_PROG_LIBTOOL
+CXXFLAGS="-Wall -std=c++11 -O3 -g"
+LDFLAGS="-O3"
+PKG_CHECK_MODULES(ZLIB, [zlib])
+AC_CONFIG_FILES([Makefile utils/Makefile])
+AC_CONFIG_MACRO_DIR([m4])
+AC_OUTPUT
